@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "显微外科技能授权领域事件",
-  "description": "用于跨模块交换事实记录的公共信封。",
+  "title": "显微外科技能证据与临床授权领域事件",
+  "description": "跨培训中心、医院委员会交换事实记录的公共信封。事件只追加、不可修改；课时、模拟成绩或单次成功不直接产生授权，授权/暂停/恢复只能由医院委员会签署。",
   "type": "object",
   "required": [
     "event_id",
@@ -10,55 +10,145 @@
     "aggregate_id",
     "occurred_at",
     "version",
-    "summary"
+    "summary",
+    "payload"
   ],
   "properties": {
     "event_id": {
       "type": "string",
       "minLength": 8,
-      "description": "事件唯一标识"
+      "description": "事件唯一标识；来源系统重试必须沿用原标识"
     },
     "event_type": {
       "type": "string",
       "enum": [
+        "COURSE_VERSION_PUBLISHED",
+        "SIM_TASK_DEFINED",
+        "PROCEDURE_DEFINED",
+        "HOSPITAL_CAPABILITY_REGISTERED",
+        "COMMITTEE_REGISTERED",
+        "RULESET_PUBLISHED",
         "ATTEMPT_RECORDED",
         "OBSERVATION_SIGNED",
+        "CASE_ROLE_LOGGED",
+        "CONSENT_RECORDED",
+        "CONSENT_SCOPE_UPDATED",
+        "COMPLICATION_REVIEWED",
         "COMPETENCY_REVIEWED",
+        "REASSESSMENT_REQUIRED",
         "PRIVILEGE_GRANTED",
-        "REASSESSMENT_REQUIRED"
+        "PRIVILEGE_SUSPENDED",
+        "PRIVILEGE_RESTORED",
+        "PRIVILEGE_RENEWED",
+        "EVIDENCE_RETRACTED",
+        "APPEAL_FILED",
+        "APPEAL_DECIDED"
       ],
-      "description": "本领域事件类型"
+      "description": "领域事件类型"
     },
     "aggregate_type": {
       "type": "string",
       "enum": [
+        "course_version",
+        "sim_task",
+        "procedure_definition",
+        "hospital_capability",
+        "committee",
+        "ruleset",
         "training_attempt",
         "mentor_observation",
+        "case_record",
+        "consent_record",
+        "complication_review",
         "competency_state",
-        "clinical_privilege"
+        "clinical_privilege",
+        "appeal"
       ],
       "description": "业务对象类型"
     },
     "aggregate_id": {
       "type": "string",
       "minLength": 1,
-      "description": "业务对象标识"
+      "description": "业务对象标识；同一对象版本从 1 递增"
     },
     "occurred_at": {
       "type": "string",
       "format": "date-time",
-      "description": "事实发生时间"
+      "description": "事实真实发生时间（不是入库时间）"
     },
     "version": {
       "type": "integer",
       "minimum": 1,
-      "description": "对象版本"
+      "description": "对象内版本号，从 1 开始连续递增"
     },
     "summary": {
       "type": "string",
       "minLength": 2,
       "description": "中文事实摘要"
+    },
+    "payload": {
+      "type": "object",
+      "description": "按 event_type 约定的事实载荷，详见各 $defs",
+      "$defs": {
+        "decision": {
+          "type": "object",
+          "description": "医院委员会签署决定；授权、暂停、恢复均须携带",
+          "required": ["decision_id", "committee_id", "signed_at", "signatories"],
+          "properties": {
+            "decision_id": { "type": "string", "minLength": 1 },
+            "committee_id": { "type": "string", "minLength": 1 },
+            "signed_at": { "type": "string", "format": "date-time" },
+            "signatories": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "string" },
+              "description": "签署委员执业标识，人数须达到委员会法定人数"
+            },
+            "minutes_ref": { "type": "string" }
+          }
+        },
+        "scope": {
+          "type": "object",
+          "description": "授权范围：医院、设备条件、术式、血管口径区间与病例角色",
+          "required": [
+            "hospital_id",
+            "equipment_condition_id",
+            "procedure_code",
+            "caliber_min_mm",
+            "caliber_max_mm",
+            "role"
+          ],
+          "properties": {
+            "hospital_id": { "type": "string" },
+            "equipment_condition_id": { "type": "string" },
+            "procedure_code": { "type": "string" },
+            "caliber_min_mm": { "type": "number", "exclusiveMinimum": 0 },
+            "caliber_max_mm": { "type": "number", "exclusiveMinimum": 0 },
+            "role": {
+              "type": "string",
+              "enum": [
+                "observer",
+                "assistant",
+                "co_surgeon",
+                "chief_under_supervision",
+                "independent_chief"
+              ]
+            }
+          }
+        },
+        "rawOperationRef": {
+          "type": "object",
+          "description": "原始操作材料引用（视频/截图/记录），只存引用与哈希，不入库个人标识",
+          "required": ["kind", "uri"],
+          "properties": {
+            "kind": { "type": "string", "enum": ["video", "image", "log", "device_export"] },
+            "uri": { "type": "string" },
+            "sha256": { "type": "string" }
+          }
+        }
+      }
     }
   },
-  "additionalProperties": true
+  "additionalProperties": true,
+  "comment": "各事件 payload 的必填字段与中文错误由 src/validator.js 按事件类型强制；本 schema 负责公共信封与取值域。"
 }

@@ -1,9 +1,22 @@
 {
-  "event_id": "evt-092105-012-0001",
+  "event_id": "evt-20260920-attempt-0001",
   "event_type": "ATTEMPT_RECORDED",
   "aggregate_type": "training_attempt",
-  "aggregate_id": "microsurgery-skill-credential-001",
-  "occurred_at": "2026-09-20T12:00:00+08:00",
+  "aggregate_id": "attempt-surgeon-w-001-sim-endtoside-0001",
+  "occurred_at": "2026-09-20T10:12:00+08:00",
   "version": 1,
-  "summary": "登记显微外科技能授权的首条领域记录"
+  "summary": "刘医师在0.8mm模拟血管端侧吻合任务中达标（连续达标序列之一）",
+  "payload": {
+    "surgeon_id": "surgeon-w-0001",
+    "kind": "simulation",
+    "sim_task_code": "SIM-ANAST-08",
+    "sim_task_version": "2.1",
+    "completed_at": "2026-09-20T10:12:00+08:00",
+    "metrics": { "time_min": 38, "leak_score": 1, "patency_check": 1 },
+    "passed": true,
+    "raw_refs": [
+      { "kind": "video", "uri": "training-center://attempts/attempt-surgeon-w-001-sim-endtoside-0001/video", "sha256": "9f2c7a51e4b34d8b6e0a2c91f7d5b3a80192c4d6e7f8a9b0c1d2e3f405162738" }
+    ],
+    "instructor_id": "mentor-z-007"
+  }
 }

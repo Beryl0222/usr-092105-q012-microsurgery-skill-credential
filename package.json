@@ -1,9 +1,10 @@
 {
   "name": "microsurgery-skill-credential",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "领域事件基础校验",
+  "description": "显微外科技能证据与临床授权：事件溯源、委员会签署、排班授权查询",
+  "main": "src/index.js",
   "scripts": {
     "test": "node --test"
   }
